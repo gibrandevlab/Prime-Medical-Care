@@ -1,0 +1,9 @@
+
+[4mSequelize CLI [Node: 22.15.0, CLI: 6.6.3, ORM: 6.37.7][24m
+
+Loaded configuration file "config\config.json".
+Using environment "development".
+== 20251221073000-create-users-and-refactor-auth: migrating =======
+
+[31mERROR:[39m Duplicate column name 'user_id'
+

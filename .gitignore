@@ -1,0 +1,54 @@
+# General
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.log
+*.tmp
+
+# Backend (Node.js)
+backend/node_modules/
+backend/.env
+backend/npm-debug.log
+backend/yarn-error.log
+backend/coverage/
+backend/dist/
+backend/build/
+
+# Frontend (Flutter) core
+frontend/build/
+frontend/.dart_tool/
+frontend/.flutter-plugins
+frontend/.flutter-plugins-dependencies
+frontend/.pub-cache/
+
+# Android
+frontend/android/.gradle
+frontend/android/local.properties
+frontend/android/key.properties
+frontend/android/app/build/
+frontend/android/.idea
+frontend/android/app/src/main/assets/
+
+# iOS
+frontend/ios/Flutter/Generated.xcconfig
+frontend/ios/Flutter/flutter_export_environment.sh
+frontend/ios/Pods/
+frontend/ios/.symlinks/
+frontend/ios/Podfile.lock
+
+# Windows
+frontend/windows/flutter/ephemeral/
+frontend/windows/flutter/generated_plugin_registrant.cc
+frontend/windows/flutter/generated_plugin_registrant.h
+frontend/windows/runner/resources/
+
+# MacOS
+frontend/macos/Flutter/ephemeral/
+frontend/macos/Pods/
+
+# Linux
+frontend/linux/flutter/ephemeral/
+
+# Web
+frontend/web/build/

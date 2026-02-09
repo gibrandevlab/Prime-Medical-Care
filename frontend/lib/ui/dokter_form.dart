@@ -3,6 +3,9 @@ import '../model/dokter.dart';
 import '../model/poli.dart';
 import '../service/dokter_service.dart';
 import '../service/poli_service.dart';
+import '../widget/custom_text_field.dart';
+import '../widget/primary_button.dart';
+import '../helpers/app_theme.dart';
 
 class DokterForm extends StatefulWidget {
   const DokterForm({super.key});
@@ -22,9 +25,6 @@ class _DokterFormState extends State<DokterForm> {
   List<Poli> _poliList = [];
   int? _selectedPoliId;
   bool _isLoadingPoli = true;
-
-  final Color _primaryTeal = const Color(0xFF00695C);
-  final Color _bgLight = const Color(0xFFF5F7FA);
 
   @override
   void initState() {
@@ -52,10 +52,10 @@ class _DokterFormState extends State<DokterForm> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _bgLight,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text("Tambah Dokter", style: TextStyle(fontFamily: 'Tahoma')),
-        backgroundColor: _primaryTeal,
+        backgroundColor: AppColors.primary,
         elevation: 0,
         centerTitle: true,
       ),
@@ -66,12 +66,20 @@ class _DokterFormState extends State<DokterForm> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _buildField("NIP", _nipCtrl, icon: Icons.badge_outlined),
+              CustomTextField(
+                label: "NIP",
+                controller: _nipCtrl,
+                icon: Icons.badge_outlined,
+              ),
               const SizedBox(height: 16),
-              _buildField("Nama Dokter", _namaCtrl, icon: Icons.person_outline),
+              CustomTextField(
+                label: "Nama Dokter",
+                controller: _namaCtrl,
+                icon: Icons.person_outline,
+              ),
               const SizedBox(height: 16),
               
-              // Poli Dropdown
+              // Poli Dropdown (Manual styling to match CustomTextField)
               DropdownButtonFormField<int>(
                 value: _selectedPoliId,
                 items: _poliList.map((poli) {
@@ -84,7 +92,7 @@ class _DokterFormState extends State<DokterForm> {
                  decoration: InputDecoration(
                   labelText: _isLoadingPoli ? "Memuat Poli..." : "Pilih Poli",
                   labelStyle: TextStyle(color: Colors.grey[700]),
-                  prefixIcon: Icon(Icons.local_hospital_outlined, color: _primaryTeal),
+                  prefixIcon: const Icon(Icons.local_hospital_outlined, color: AppColors.primary),
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -92,7 +100,7 @@ class _DokterFormState extends State<DokterForm> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: _primaryTeal, width: 2),
+                    borderSide: const BorderSide(color: AppColors.primary, width: 2),
                   ),
                   filled: true,
                   fillColor: Colors.white,
@@ -101,62 +109,36 @@ class _DokterFormState extends State<DokterForm> {
               ),
 
               const SizedBox(height: 16),
-              _buildField("Nomor Telepon", _telpCtrl, icon: Icons.phone_android, keyboardType: TextInputType.phone),
+              CustomTextField(
+                label: "Nomor Telepon",
+                controller: _telpCtrl,
+                icon: Icons.phone_android,
+                keyboardType: TextInputType.phone,
+              ),
               const SizedBox(height: 16),
-              _buildField("Email", _emailCtrl, icon: Icons.email_outlined, keyboardType: TextInputType.emailAddress),
+              CustomTextField(
+                label: "Email",
+                controller: _emailCtrl,
+                icon: Icons.email_outlined,
+                keyboardType: TextInputType.emailAddress,
+              ),
               const SizedBox(height: 16),
-              _buildField("Password", _passwordCtrl, icon: Icons.lock_outline, obscureText: true),
+              CustomTextField(
+                label: "Password",
+                controller: _passwordCtrl,
+                icon: Icons.lock_outline,
+                obscureText: true,
+              ),
               
               const SizedBox(height: 30),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: _primaryTeal,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  elevation: 4,
-                  shadowColor: _primaryTeal.withOpacity(0.4),
-                ),
+              PrimaryButton(
+                text: "Simpan Data",
                 onPressed: _simpan,
-                child: const Text(
-                  "SIMPAN DATA", 
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, fontFamily: 'Tahoma')
-                ),
               ),
             ],
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildField(String label, TextEditingController controller, {
-    IconData? icon, 
-    bool obscureText = false,
-    TextInputType keyboardType = TextInputType.text,
-  }) {
-    return TextFormField(
-      controller: controller,
-      obscureText: obscureText,
-      keyboardType: keyboardType,
-      cursorColor: _primaryTeal,
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: TextStyle(color: Colors.grey[700]),
-        prefixIcon: icon != null ? Icon(icon, color: _primaryTeal) : null,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey[300]!),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: _primaryTeal, width: 2),
-        ),
-        filled: true,
-        fillColor: Colors.white,
-      ),
-      validator: (value) => (value == null || value.isEmpty) ? '$label wajib diisi' : null,
     );
   }
 

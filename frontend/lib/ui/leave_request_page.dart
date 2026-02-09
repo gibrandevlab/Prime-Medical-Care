@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../service/schedule_service.dart';
 import '../helpers/user_info.dart';
 import '../widget/sidebar.dart';
+import '../widget/custom_text_field.dart';
+import '../widget/primary_button.dart';
 import '../helpers/app_theme.dart';
 
 class LeaveRequestPage extends StatefulWidget {
@@ -22,6 +24,9 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> with SingleTickerPr
 
   final _formKey = GlobalKey<FormState>();
   final _reasonCtrl = TextEditingController();
+  final _startDateCtrl = TextEditingController(); // For display/bind
+  final _endDateCtrl = TextEditingController(); // For display/bind
+  
   DateTime? _startDate;
   DateTime? _endDate;
   List<dynamic> _substitutes = [];
@@ -54,7 +59,6 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> with SingleTickerPr
       } else if (_userId != null) {
          final list = await _scheduleSvc.getOverrides(_userId!);
          // Filter to only show 'Pending' or 'Rejected' or Leaves (is_available = false)
-         // But logic might differ. For now, let's show all overrides that are NOT 'Available' or have specific notes
          final leaves = list.where((item) => item['is_available'] == false || item['is_available'] == 0 || item['status'] == 'Pending').toList();
          if (mounted) setState(() => _requests = leaves);
       }
@@ -73,7 +77,7 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> with SingleTickerPr
       },
       child: Scaffold(
         backgroundColor: AppColors.background,
-        drawer: const Sidebar(), // Add Drawer
+        drawer: const Sidebar(),
         appBar: AppBar(
           title: const Text("Pengajuan Cuti / Jadwal", style: TextStyle(fontFamily: 'Tahoma')),
           backgroundColor: AppColors.primary,
@@ -151,6 +155,7 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> with SingleTickerPr
                         child: const Text("Tolak", style: TextStyle(color: Colors.red)),
                       ),
                       const SizedBox(width: 8),
+                      // Keeping manual ElevatedButton for small variant inside list
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
                         onPressed: () => _approve(item['id'], true),
@@ -204,36 +209,57 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> with SingleTickerPr
             const Text("Form Pengajuan Cuti / Libur", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 20),
             
-            ListTile(
-              title: Text(_startDate == null ? "Pilih Tanggal Mulai" : "Mulai: ${_startDate.toString().split(' ')[0]}"),
-              trailing: const Icon(Icons.calendar_today),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8), side: const BorderSide(color: Colors.grey)),
+            // Replaced ListTile with CustomTextField (Date Picker)
+            CustomTextField(
+              label: "Tanggal Mulai",
+              controller: _startDateCtrl,
+              icon: Icons.calendar_today,
+              readOnly: true,
               onTap: () async {
                 final date = await showDatePicker(context: context, initialDate: DateTime.now(), firstDate: DateTime.now(), lastDate: DateTime(2030));
                 if (date != null) {
-                    setState(() => _startDate = date);
+                    setState(() {
+                      _startDate = date;
+                      _startDateCtrl.text = date.toString().split(' ')[0];
+                    });
                     _loadSubstitutes();
                 }
               },
             ),
             const SizedBox(height: 12),
-            ListTile(
-              title: Text(_endDate == null ? "Pilih Tanggal Selesai" : "Selesai: ${_endDate.toString().split(' ')[0]}"),
-              trailing: const Icon(Icons.calendar_today),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8), side: const BorderSide(color: Colors.grey)),
+            CustomTextField(
+              label: "Tanggal Selesai",
+              controller: _endDateCtrl,
+              icon: Icons.calendar_today,
+              readOnly: true,
               onTap: () async {
                 final date = await showDatePicker(context: context, initialDate: _startDate ?? DateTime.now(), firstDate: _startDate ?? DateTime.now(), lastDate: DateTime(2030));
-                if (date != null) setState(() => _endDate = date);
+                if (date != null) {
+                  setState(() {
+                    _endDate = date;
+                    _endDateCtrl.text = date.toString().split(' ')[0];
+                  });
+                }
               },
             ),
             const SizedBox(height: 12),
             
-            // Substitute Doctor Dropdown
+            // Substitute Doctor Dropdown - Manual Style matching CustomTextField
             DropdownButtonFormField<int>(
               decoration: InputDecoration(
                 labelText: "Dokter Pengganti (Opsional)",
-                border: const OutlineInputBorder(),
-                suffixIcon: _loadingSubstitutes ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)) : null,
+                prefixIcon: _loadingSubstitutes ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.people_outline, color: AppColors.primary),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.grey[300]!),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: AppColors.primary, width: 2),
+                ),
+                filled: true,
+                fillColor: Colors.white,
               ),
               value: _selectedSubstituteId,
               items: [
@@ -247,21 +273,18 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> with SingleTickerPr
             ),
             const SizedBox(height: 12),
 
-            TextFormField(
+            CustomTextField(
+              label: "Alasan",
               controller: _reasonCtrl,
-              decoration: const InputDecoration(labelText: "Alasan", border: OutlineInputBorder()),
+              icon: Icons.note_alt_outlined,
               maxLines: 3,
               validator: (v) => v == null || v.isEmpty ? 'Wajib diisi' : null,
             ),
             const SizedBox(height: 24),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary, 
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                foregroundColor: Colors.white
-              ),
+            
+            PrimaryButton(
+              text: "AJUKAN",
               onPressed: _submit,
-              child: const Text("AJUKAN"),
             ),
           ],
         ),
@@ -296,6 +319,8 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> with SingleTickerPr
         if (mounted) {
            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Pengajuan berhasil dikirim"), backgroundColor: Colors.green));
            _reasonCtrl.clear();
+           _startDateCtrl.clear();
+           _endDateCtrl.clear();
            setState(() {
              _startDate = null;
              _endDate = null;

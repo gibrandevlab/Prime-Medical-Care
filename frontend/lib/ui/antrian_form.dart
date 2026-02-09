@@ -7,6 +7,9 @@ import '../model/pasien.dart';
 import '../model/poli.dart';
 import '../model/dokter.dart';
 import '../model/antrian.dart';
+import '../widget/custom_text_field.dart';
+import '../widget/primary_button.dart';
+import '../helpers/app_theme.dart';
 
 class AntrianForm extends StatefulWidget {
   const AntrianForm({super.key});
@@ -34,10 +37,6 @@ class _AntrianFormState extends State<AntrianForm> {
   int? _selectedPasien;
   int? _selectedPoli;
   int? _selectedDokter;
-
-  // Palette
-  final Color _primaryTeal = const Color(0xFF00695C);
-  final Color _bgLight = const Color(0xFFF5F7FA);
 
   @override
   void initState() {
@@ -71,10 +70,10 @@ class _AntrianFormState extends State<AntrianForm> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _bgLight,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text("Daftar Antrian Baru", style: TextStyle(fontFamily: 'Tahoma')),
-        backgroundColor: _primaryTeal,
+        backgroundColor: AppColors.primary,
         elevation: 0,
         centerTitle: true,
       ),
@@ -117,36 +116,18 @@ class _AntrianFormState extends State<AntrianForm> {
               const SizedBox(height: 16),
 
               // Keluhan
-              TextFormField(
+              CustomTextField(
+                label: "Keluhan Utama",
                 controller: _keluhanCtrl,
+                icon: Icons.note_alt_outlined,
                 maxLines: 3,
-                cursorColor: _primaryTeal,
-                decoration: InputDecoration(
-                  labelText: "Keluhan Utama",
-                  prefixIcon: Icon(Icons.note_alt_outlined, color: _primaryTeal),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: _primaryTeal, width: 2),
-                  ),
-                  filled: true,
-                  fillColor: Colors.white,
-                ),
                 validator: (v) => v!.isEmpty ? "Keluhan wajib diisi" : null,
               ),
 
               const SizedBox(height: 30),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: _primaryTeal,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  elevation: 4,
-                  shadowColor: _primaryTeal.withOpacity(0.4),
-                ),
+              PrimaryButton(
+                text: "Daftar Antrian",
                 onPressed: _submit,
-                child: const Text("DAFTAR ANTRIAN", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, fontFamily: 'Tahoma')),
               ),
             ],
           ),
@@ -169,7 +150,7 @@ class _AntrianFormState extends State<AntrianForm> {
       onChanged: enabled ? onChanged : null,
       decoration: InputDecoration(
         labelText: label,
-        prefixIcon: Icon(icon, color: enabled ? _primaryTeal : Colors.grey),
+        prefixIcon: Icon(icon, color: enabled ? AppColors.primary : Colors.grey),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -177,7 +158,7 @@ class _AntrianFormState extends State<AntrianForm> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: _primaryTeal, width: 2),
+          borderSide: const BorderSide(color: AppColors.primary, width: 2),
         ),
         filled: true,
         fillColor: enabled ? Colors.white : Colors.grey[100],

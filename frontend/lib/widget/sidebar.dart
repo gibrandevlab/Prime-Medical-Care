@@ -231,7 +231,6 @@ class _SidebarState extends State<Sidebar> {
                   _buildSectionLabel("AREA PASIEN"),
                   // Dashboard removed (Already covered by Beranda)
                   _PremiumMenuItem(
-                  _PremiumMenuItem(
                     icon: Icons.queue_rounded,
                     title: "Antrian Saya",
                     routeName: '/pasien/antrian',

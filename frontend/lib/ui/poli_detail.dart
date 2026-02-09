@@ -3,6 +3,8 @@ import '../model/poli.dart';
 import 'poli_update_form.dart';
 import '../service/poli_service.dart';
 import '../helpers/user_info.dart';
+import '../helpers/app_theme.dart';
+import '../widget/card_container.dart';
 
 class PoliDetail extends StatefulWidget {
   final Poli poli;
@@ -15,33 +17,32 @@ class PoliDetail extends StatefulWidget {
 }
 
 class _PoliDetailState extends State<PoliDetail> {
-  final Color _primaryTeal = const Color(0xFF00695C);
+  // Palette
+  final Color _goldAccent = const Color(0xFFD4AF37);
+  final Color _redDanger = const Color(0xFFE57373);
   bool _canEdit = false;
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _initRole();
+  void initState() {
+    super.initState();
+    _checkRole();
   }
 
-  Future<void> _initRole() async {
+  Future<void> _checkRole() async {
     final role = await UserInfo.getRole();
-    if (!mounted) return;
-    setState(() {
-      _canEdit = role == 'admin'; // Only admin can CRUD poli
-    });
+    if (mounted) setState(() => _canEdit = role == 'admin');
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FA),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text(
           "Detail Poli",
           style: TextStyle(fontFamily: 'Tahoma'),
         ),
-        backgroundColor: _primaryTeal,
+        backgroundColor: AppColors.primary,
         elevation: 0,
         centerTitle: true,
       ),
@@ -49,33 +50,20 @@ class _PoliDetailState extends State<PoliDetail> {
         padding: const EdgeInsets.all(24),
         child: Column(
           children: [
-            // Card Utama
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(30),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.1),
-                    blurRadius: 15,
-                    offset: const Offset(0, 5),
-                  ),
-                ],
-              ),
+            // Main Info Card
+            CardContainer(
               child: Column(
                 children: [
                   CircleAvatar(
                     radius: 40,
-                    backgroundColor: _primaryTeal.withOpacity(0.1),
-                    child: Icon(
-                      Icons.apartment_rounded,
+                    backgroundColor: AppColors.primary.withOpacity(0.1),
+                    child: const Icon(
+                      Icons.local_hospital_rounded,
                       size: 40,
-                      color: _primaryTeal,
+                      color: AppColors.primary,
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 24),
                   Text(
                     widget.poli.namaPoli,
                     style: const TextStyle(
@@ -86,88 +74,66 @@ class _PoliDetailState extends State<PoliDetail> {
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    "Poliklinik Layanan Utama",
-                    style: TextStyle(color: Colors.grey, fontSize: 14),
-                  ),
-                  const SizedBox(height: 24),
-                  if (widget.poli.keterangan != null && widget.poli.keterangan!.isNotEmpty)
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: _primaryTeal.withOpacity(0.05),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: _primaryTeal.withOpacity(0.1)),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text("Keterangan:", style: TextStyle(fontWeight: FontWeight.bold, color: _primaryTeal)),
-                          const SizedBox(height: 4),
-                          Text(widget.poli.keterangan!, style: const TextStyle(fontSize: 14, color: Colors.black87)),
-                        ],
-                      ),
-                    ),
                 ],
               ),
             ),
-            const SizedBox(height: 40),
+            const SizedBox(height: 32),
 
-            // Tombol Aksi (hanya untuk admin/petugas)
+            // Action Buttons
             if (_canEdit)
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFD4AF37), // Gold
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _goldAccent,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      icon: const Icon(Icons.edit_rounded, size: 20),
-                      label: const Text(
-                        "Ubah",
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      onPressed: () async {
-                        final hasilUbah = await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => PoliUpdateForm(poli: widget.poli),
-                          ),
-                        );
-                        if (hasilUbah != null && mounted) {
-                          Navigator.pop(context, hasilUbah);
-                        }
-                      },
                     ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFE57373), // Soft Red
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      icon: const Icon(Icons.delete_rounded, size: 20),
-                      label: const Text(
-                        "Hapus",
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      onPressed: () => _konfirmasiHapus(context),
+                    icon: const Icon(Icons.edit_rounded, size: 20),
+                    label: const Text(
+                      "Ubah",
+                      style: TextStyle(fontWeight: FontWeight.bold, fontFamily: 'Tahoma'),
                     ),
+                    onPressed: () async {
+                      final hasil = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => PoliUpdateForm(poli: widget.poli),
+                        ),
+                      );
+                      if (hasil != null && mounted) {
+                        Navigator.pop(context, hasil);
+                      }
+                    },
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _redDanger,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    icon: const Icon(Icons.delete_rounded, size: 20),
+                    label: const Text(
+                      "Hapus",
+                      style: TextStyle(fontWeight: FontWeight.bold, fontFamily: 'Tahoma'),
+                    ),
+                    onPressed: () => _konfirmasiHapus(context),
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),
@@ -178,9 +144,9 @@ class _PoliDetailState extends State<PoliDetail> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-        title: const Text("Hapus Poli"),
-        content: const Text("Apakah Anda yakin ingin menghapus poli ini?"),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text("Hapus Poli", style: TextStyle(fontFamily: 'Tahoma', fontWeight: FontWeight.bold)),
+        content: const Text("Apakah Anda yakin ingin menghapus poli ini? Data tidak dapat dikembalikan."),
         actions: [
           TextButton(
             child: const Text("Batal", style: TextStyle(color: Colors.grey)),
@@ -188,7 +154,8 @@ class _PoliDetailState extends State<PoliDetail> {
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFE57373),
+              backgroundColor: _redDanger,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
             onPressed: () async {
               Navigator.pop(context);

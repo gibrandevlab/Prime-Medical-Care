@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import '../model/dokter.dart';
 import '../service/dokter_service.dart';
+import '../widget/custom_text_field.dart';
+import '../widget/primary_button.dart';
+import '../helpers/app_theme.dart';
 
 class DokterUpdateForm extends StatefulWidget {
   final Dokter dokter;
@@ -19,9 +22,6 @@ class _DokterUpdateFormState extends State<DokterUpdateForm> {
   final _poliCtrl = TextEditingController();
   final _telpCtrl = TextEditingController();
 
-  final Color _primaryTeal = const Color(0xFF00695C);
-  final Color _bgLight = const Color(0xFFF5F7FA);
-
   @override
   void initState() {
     super.initState();
@@ -35,10 +35,10 @@ class _DokterUpdateFormState extends State<DokterUpdateForm> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _bgLight,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text("Ubah Data Dokter", style: TextStyle(fontFamily: 'Tahoma')),
-        backgroundColor: _primaryTeal,
+        backgroundColor: AppColors.primary,
         elevation: 0,
         centerTitle: true,
       ),
@@ -49,72 +49,59 @@ class _DokterUpdateFormState extends State<DokterUpdateForm> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _buildField("NIP", _nipCtrl, icon: Icons.badge_outlined),
+              CustomTextField(
+                label: "NIP",
+                controller: _nipCtrl,
+                icon: Icons.badge_outlined,
+              ),
               const SizedBox(height: 16),
-              _buildField("Nama Dokter", _namaCtrl, icon: Icons.person_outline),
+              CustomTextField(
+                label: "Nama Dokter",
+                controller: _namaCtrl,
+                icon: Icons.person_outline,
+              ),
               const SizedBox(height: 16),
-              _buildField("ID Poli", _poliCtrl, icon: Icons.local_hospital_outlined, keyboardType: TextInputType.number),
+              CustomTextField(
+                label: "ID Poli",
+                controller: _poliCtrl,
+                icon: Icons.local_hospital_outlined,
+                keyboardType: TextInputType.number,
+              ),
               const SizedBox(height: 16),
-              _buildField("Nomor Telepon", _telpCtrl, icon: Icons.phone_android, keyboardType: TextInputType.phone),
+              CustomTextField(
+                label: "Nomor Telepon",
+                controller: _telpCtrl,
+                icon: Icons.phone_android,
+                keyboardType: TextInputType.phone,
+              ),
               const SizedBox(height: 16),
-              _buildField("Email", _emailCtrl, icon: Icons.email_outlined, keyboardType: TextInputType.emailAddress),
+              CustomTextField(
+                label: "Email",
+                controller: _emailCtrl,
+                icon: Icons.email_outlined,
+                keyboardType: TextInputType.emailAddress,
+              ),
               const SizedBox(height: 16),
-              _buildField("Password", _passwordCtrl, icon: Icons.lock_outline, obscureText: true, isRequired: false),
+              CustomTextField(
+                label: "Password",
+                controller: _passwordCtrl,
+                icon: Icons.lock_outline,
+                obscureText: true,
+                validator: (value) {
+                  // Not required for update
+                  return null;
+                },
+              ),
               
               const SizedBox(height: 30),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: _primaryTeal,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  elevation: 4,
-                  shadowColor: _primaryTeal.withOpacity(0.4),
-                ),
+              PrimaryButton(
+                text: "Simpan Perubahan",
                 onPressed: _simpanPerubahan,
-                child: const Text(
-                  "SIMPAN PERUBAHAN", 
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, fontFamily: 'Tahoma')
-                ),
               ),
             ],
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildField(String label, TextEditingController controller, {
-    IconData? icon, 
-    bool obscureText = false,
-    TextInputType keyboardType = TextInputType.text,
-    bool isRequired = true,
-  }) {
-    return TextFormField(
-      controller: controller,
-      obscureText: obscureText,
-      keyboardType: keyboardType,
-      cursorColor: _primaryTeal,
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: TextStyle(color: Colors.grey[700]),
-        prefixIcon: icon != null ? Icon(icon, color: _primaryTeal) : null,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey[300]!),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: _primaryTeal, width: 2),
-        ),
-        filled: true,
-        fillColor: Colors.white,
-      ),
-      validator: (value) {
-        if (!isRequired) return null;
-        return (value == null || value.isEmpty) ? '$label wajib diisi' : null;
-      },
     );
   }
 
@@ -141,3 +128,4 @@ class _DokterUpdateFormState extends State<DokterUpdateForm> {
     }
   }
 }
+ 

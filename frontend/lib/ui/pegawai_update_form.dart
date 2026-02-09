@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import '../model/pegawai.dart';
 import '../service/pegawai_service.dart';
+import '../widget/custom_text_field.dart';
+import '../widget/primary_button.dart';
+import '../helpers/app_theme.dart';
 
 class PegawaiUpdateForm extends StatefulWidget {
   final Pegawai pegawai;
@@ -20,8 +23,6 @@ class _PegawaiUpdateFormState extends State<PegawaiUpdateForm> {
   final _tglCtrl = TextEditingController();
   final _telpCtrl = TextEditingController();
 
-  final Color _primaryTeal = const Color(0xFF00695C);
-
   @override
   void initState() {
     super.initState();
@@ -35,12 +36,13 @@ class _PegawaiUpdateFormState extends State<PegawaiUpdateForm> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text(
           "Ubah Data Pegawai",
           style: TextStyle(fontFamily: 'Tahoma'),
         ),
-        backgroundColor: _primaryTeal,
+        backgroundColor: AppColors.primary,
         elevation: 0,
         centerTitle: true,
       ),
@@ -51,110 +53,70 @@ class _PegawaiUpdateFormState extends State<PegawaiUpdateForm> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _buildField("Nama Pegawai", _namaCtrl, Icons.person_outline),
-              _buildField(
-                "NIP",
-                _nipCtrl,
-                Icons.badge_outlined,
-                isNumber: true,
+              CustomTextField(
+                label: "Nama Pegawai",
+                controller: _namaCtrl,
+                icon: Icons.person_outline,
               ),
-              _buildField(
-                "Tanggal Lahir",
-                _tglCtrl,
-                Icons.calendar_today_outlined,
+              const SizedBox(height: 16),
+              CustomTextField(
+                label: "NIP",
+                controller: _nipCtrl,
+                icon: Icons.badge_outlined,
+                keyboardType: TextInputType.number,
+              ),
+              const SizedBox(height: 16),
+              CustomTextField(
+                label: "Tanggal Lahir",
+                controller: _tglCtrl,
+                icon: Icons.calendar_today_outlined,
                 readOnly: true,
                 onTap: _pickTanggal,
               ),
-              _buildField("Email", _emailCtrl, Icons.email_outlined),
-              _buildPasswordField(
-                "Password (kosongi jika tidak diubah)",
-                _passwordCtrl,
+              const SizedBox(height: 16),
+              CustomTextField(
+                label: "Email",
+                controller: _emailCtrl,
+                icon: Icons.email_outlined,
               ),
-              _buildPasswordField("Konfirmasi Password", _confirmCtrl),
-              _buildField(
-                "Nomor Telepon",
-                _telpCtrl,
-                Icons.phone_android_outlined,
-                isNumber: true,
+              const SizedBox(height: 16),
+              CustomTextField(
+                label: "Password (kosongi jika tidak diubah)",
+                controller: _passwordCtrl,
+                icon: Icons.lock_outline,
+                obscureText: true,
+                validator: (value) {
+                  // password optional on update
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+              CustomTextField(
+                label: "Konfirmasi Password",
+                controller: _confirmCtrl,
+                icon: Icons.lock_outline,
+                obscureText: true,
+                validator: (value) {
+                  // validation handled in _simpanPerubahan for comparison
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+              CustomTextField(
+                label: "Nomor Telepon",
+                controller: _telpCtrl,
+                icon: Icons.phone_android_outlined,
+                keyboardType: TextInputType.phone,
               ),
               const SizedBox(height: 30),
 
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: _primaryTeal,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  elevation: 4,
-                ),
+              PrimaryButton(
+                text: "Simpan Perubahan",
                 onPressed: _simpanPerubahan,
-                child: const Text(
-                  "SIMPAN PERUBAHAN",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
               ),
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildField(
-    String label,
-    TextEditingController controller,
-    IconData icon, {
-    bool isNumber = false,
-    VoidCallback? onTap,
-    bool readOnly = false,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 20),
-      child: TextFormField(
-        controller: controller,
-        keyboardType: isNumber ? TextInputType.number : TextInputType.text,
-        readOnly: readOnly,
-        onTap: onTap,
-        decoration: InputDecoration(
-          labelText: label,
-          prefixIcon: Icon(icon, color: _primaryTeal),
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: _primaryTeal, width: 2),
-          ),
-          filled: true,
-          fillColor: Colors.white,
-        ),
-        validator: (value) =>
-            (value == null || value.isEmpty) ? '$label wajib diisi' : null,
-      ),
-    );
-  }
-
-  Widget _buildPasswordField(String label, TextEditingController controller) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 20),
-      child: TextFormField(
-        controller: controller,
-        obscureText: true,
-        decoration: InputDecoration(
-          labelText: label,
-          prefixIcon: Icon(Icons.lock_outline, color: _primaryTeal),
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: _primaryTeal, width: 2),
-          ),
-          filled: true,
-          fillColor: Colors.white,
-        ),
-        validator: (value) {
-          // password optional on update
-          return null;
-        },
       ),
     );
   }

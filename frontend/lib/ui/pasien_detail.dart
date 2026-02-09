@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import '../model/pasien.dart';
 import 'pasien_update_form.dart';
 import 'medical_record_page.dart';
-import 'medical_record_form.dart'; // <--- Tambahan
+import 'medical_record_form.dart';
 import '../service/pasien_service.dart';
 import '../helpers/user_info.dart';
+import '../helpers/app_theme.dart';
+import '../widget/card_container.dart';
+import '../widget/detail_row.dart';
 
 class PasienDetail extends StatefulWidget {
   final Pasien pasien;
@@ -18,10 +21,9 @@ class PasienDetail extends StatefulWidget {
 
 class _PasienDetailState extends State<PasienDetail> {
   final _service = PasienService();
-  final Color _primaryTeal = const Color(0xFF00695C);
-  final Color _indigoMedical = const Color(0xFF3949AB); // Warna khusus medis
+  final Color _indigoMedical = const Color(0xFF3949AB);
   bool _canEdit = false;
-  bool _canDelete = false; // Only admin can delete
+  bool _canDelete = false;
 
   @override
   void didChangeDependencies() {
@@ -34,31 +36,29 @@ class _PasienDetailState extends State<PasienDetail> {
     if (!mounted) return;
     setState(() {
       _canEdit = role == 'admin' || role == 'petugas';
-      _canDelete = role == 'admin'; // Only admin can delete
+      _canDelete = role == 'admin';
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FA),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text(
           "Detail Pasien",
           style: TextStyle(fontFamily: 'Tahoma', fontWeight: FontWeight.bold),
         ),
-        backgroundColor: _primaryTeal,
+        backgroundColor: AppColors.primary,
         elevation: 0,
         centerTitle: true,
       ),
-      // FAB KHUSUS DOKTER
-      floatingActionButton: (_canEdit == false) // Asumsi: jika bukan admin/petugas, mungkin dokter
+      floatingActionButton: (!_canEdit) 
           ? FloatingActionButton.extended(
               backgroundColor: _indigoMedical,
               icon: const Icon(Icons.add_task_rounded, color: Colors.white),
               label: const Text("Buat Rekam Medis", style: TextStyle(color: Colors.white)),
               onPressed: () async {
-                 // Butuh ID Dokter dll. Idealnya ambil dari UserInfo
                  final dokId = await UserInfo.getUserID();
                  if (dokId != null && mounted) {
                    Navigator.push(
@@ -73,7 +73,6 @@ class _PasienDetailState extends State<PasienDetail> {
             )
           : null,
       body: SingleChildScrollView(
-        // ScrollView wajib agar tidak error di HP kecil
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
         child: Column(
           children: [
@@ -82,13 +81,12 @@ class _PasienDetailState extends State<PasienDetail> {
 
             const SizedBox(height: 24),
 
-            // --- TOMBOL REKAM MEDIS (HIGHLIGHT) ---
-            // Dibuat full width agar menonjol dan tidak sempit
+            // --- TOMBOL REKAM MEDIS ---
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: _indigoMedical, // Warna beda biar kontras
+                  backgroundColor: _indigoMedical,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 18),
                   shape: RoundedRectangleBorder(
@@ -111,7 +109,6 @@ class _PasienDetailState extends State<PasienDetail> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      // Pastikan ID dikirim dengan aman
                       builder: (context) =>
                           MedicalRecordPage(pasienId: widget.pasien.id!),
                     ),
@@ -123,11 +120,10 @@ class _PasienDetailState extends State<PasienDetail> {
             const SizedBox(height: 16),
 
             if (_canEdit)
-              // --- TOMBOL ADMIN/PETUGAS (UBAH) & ADMIN ONLY (HAPUS) ---
               Row(
                 children: [
                   Expanded(
-                    flex: _canDelete ? 1 : 2, // Full width if no delete button
+                    flex: _canDelete ? 1 : 2,
                     child: ElevatedButton.icon(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFD4AF37), // Gold
@@ -181,39 +177,23 @@ class _PasienDetailState extends State<PasienDetail> {
                   ],
                 ],
               ),
-            const SizedBox(height: 40), // Ruang kosong bawah
+            const SizedBox(height: 40),
           ],
         ),
       ),
     );
   }
 
-  // Widget Terpisah untuk Kartu Info agar Rapi
   Widget _buildInfoCard() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
+    return CardContainer(
       child: Column(
         children: [
-          // Avatar Besar
           CircleAvatar(
             radius: 40,
-            backgroundColor: _primaryTeal.withOpacity(0.1),
-            child: Icon(Icons.person_rounded, size: 45, color: _primaryTeal),
+            backgroundColor: AppColors.primary.withOpacity(0.1),
+            child: const Icon(Icons.person_rounded, size: 45, color: AppColors.primary),
           ),
           const SizedBox(height: 16),
-          // Nama & RM
           Text(
             widget.pasien.nama,
             style: const TextStyle(
@@ -243,65 +223,17 @@ class _PasienDetailState extends State<PasienDetail> {
           const SizedBox(height: 24),
           const Divider(height: 1),
           const SizedBox(height: 24),
-          // Detail Data
-          _buildInfoRow(
-            Icons.calendar_today_rounded,
-            "Tanggal Lahir",
-            widget.pasien.tanggalLahir,
-          ),
-          _buildInfoRow(
-            Icons.phone_rounded,
-            "Telepon",
-            widget.pasien.nomorTelepon,
-          ),
-          _buildInfoRow(
-            Icons.location_on_rounded,
-            "Alamat",
-            widget.pasien.alamat,
-          ),
-          // Jika ada email
+          
+          DetailRow(icon: Icons.calendar_today_rounded, label: "Tanggal Lahir", value: widget.pasien.tanggalLahir),
+          const SizedBox(height: 16),
+          DetailRow(icon: Icons.phone_rounded, label: "Telepon", value: widget.pasien.nomorTelepon),
+          const SizedBox(height: 16),
+          DetailRow(icon: Icons.location_on_rounded, label: "Alamat", value: widget.pasien.alamat),
           if (widget.pasien.email != null && widget.pasien.email!.isNotEmpty)
-            _buildInfoRow(Icons.email_outlined, "Email", widget.pasien.email!),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInfoRow(IconData icon, String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.grey.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(icon, size: 20, color: _primaryTeal),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  value.isEmpty ? "-" : value,
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF2C3E50),
-                  ),
-                ),
-              ],
-            ),
-          ),
+             Padding(
+               padding: const EdgeInsets.only(top: 16),
+               child: DetailRow(icon: Icons.email_outlined, label: "Email", value: widget.pasien.email!),
+             ),
         ],
       ),
     );
@@ -326,8 +258,8 @@ class _PasienDetailState extends State<PasienDetail> {
             onPressed: () async {
               await _service.delete(widget.pasien.id!);
               if (context.mounted) {
-                Navigator.pop(context); // Tutup dialog
-                Navigator.pop(context, 'hapus'); // Kembali ke list
+                Navigator.pop(context);
+                Navigator.pop(context, 'hapus');
               }
             },
             child: const Text("Hapus", style: TextStyle(color: Colors.white)),

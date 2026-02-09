@@ -9,8 +9,7 @@ import 'approval_page.dart';
 import 'rating_page.dart'; 
 import 'pasien_dashboard.dart';
 import '../helpers/user_info.dart';
-import '../service/antrian_service.dart';
-import '../service/pasien_service.dart';
+import '../service/dashboard_service.dart';
 
 class Beranda extends StatefulWidget {
   const Beranda({super.key});
@@ -61,52 +60,43 @@ class _BerandaState extends State<Beranda> {
   int _stat2 = 0;
   String _label1 = "Stat 1";
   String _label2 = "Stat 2";
+  
+  // Extra Data
+  int _pendingApprovals = 0;
+  List<dynamic> _recentActivity = [];
+  List<dynamic> _upcomingSchedule = [];
 
   Future<void> _loadStats() async {
     if (_role == 'pasien') return;
 
     try {
-      if (_role == 'dokter') {
-         // Dokter: Antrian Saya, Selesai
-         _label1 = "Antrian Saya";
-         _label2 = "Selesai";
-         final uid = await UserInfo.getUserID();
-         if (uid != null) {
-            final list = await AntrianService().getByDokter(int.parse(uid));
-            if (mounted) {
-              setState(() {
-                 _stat1 = list.where((x) => x.status == 'Menunggu' || x.status == 'Dipanggil').length;
-                 _stat2 = list.where((x) => x.status == 'Selesai').length;
-              });
-            }
-         }
-      } else if (_role == 'petugas') {
-         // Petugas: Antrian Pending, Total Pasien
-         _label1 = "Antrian Pending";
-         _label2 = "Total Pasien";
-         final antrian = await AntrianService().getAntrian();
-         final pasien = await PasienService().getAll();
-         if (mounted) {
-            setState(() {
-               _stat1 = antrian.where((x) => x.status == 'Menunggu').length;
-               _stat2 = pasien.length;
-            });
-         }
-      } else if (_role == 'admin') {
-         // Admin: Antrian Hari Ini, Total Pegawai/Dokter? Spec: "Pending Approval"
-         _label1 = "Antrian Hari Ini";
-         _label2 = "User"; // Placeholder for Pending Approval if service missing
-         
-         final antrian = await AntrianService().getAntrian();
-         // Filter today
-         final now = DateTime.now();
-         final todayCount = antrian.length; // Simplified for now, filtering date requires parsing
-         
-         if (mounted) setState(() {
-            _stat1 = todayCount;
-            _stat2 = 0; // Approval service implementation pending
-         });
-      }
+      final uid = await UserInfo.getUserID();
+      final stats = await DashboardService().getStats(_role!, uid);
+
+      if (!mounted) return;
+
+      setState(() {
+        if (_role == 'dokter') {
+           _label1 = "Antrian Saya";
+           _label2 = "Selesai";
+           _stat1 = stats['antrianToday'] ?? 0;
+           _stat2 = stats['antrianSelesai'] ?? 0;
+           _upcomingSchedule = stats['upcomingSchedule'] ?? [];
+        } else if (_role == 'petugas') {
+           _label1 = "Antrian Pending";
+           _label2 = "Total Pasien";
+           _stat1 = stats['antrianPending'] ?? 0;
+           _stat2 = stats['totalPasien'] ?? 0;
+           _recentActivity = stats['recentAntrian'] ?? [];
+        } else if (_role == 'admin') {
+           _label1 = "Antrian Hari Ini";
+           _label2 = "Total User";
+           _stat1 = stats['antrianToday'] ?? 0;
+           _stat2 = stats['totalUsers'] ?? 0;
+           _pendingApprovals = stats['pendingApprovals'] ?? 0;
+           _recentActivity = stats['recentAntrian'] ?? [];
+        }
+      });
     } catch (e) {
        print("Failed to load stats: $e");
     }
@@ -160,23 +150,19 @@ class _BerandaState extends State<Beranda> {
           // STATS CARDS
           if (_role != 'pasien')
             _buildStatsRow(),
-          if (_role != 'pasien')
-            const SizedBox(height: 24),
+          
+          if (_role != 'pasien') ...[
+             const SizedBox(height: 24),
+             if (_role == 'dokter') _buildUpcomingSchedule(),
+             if (_role == 'admin' || _role == 'petugas') _buildRecentActivity(),
+             const SizedBox(height: 24),
+          ],
+
 
           // MENU GRID
           _buildFilteredGrid(),
         ],
       ),
-    );
-  }
-
-  Widget _buildStatsRow() {
-    return Row(
-      children: [
-        Expanded(child: _buildStatCard(_label1, _stat1.toString(), Colors.orange)),
-        const SizedBox(width: 16),
-        Expanded(child: _buildStatCard(_label2, _stat2.toString(), Colors.blue)),
-      ],
     );
   }
 
@@ -191,11 +177,85 @@ class _BerandaState extends State<Beranda> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(value, style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold)),
+          Text(value, style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
           const SizedBox(height: 4),
-          Text(label, style: const TextStyle(color: Colors.white70, fontSize: 14)),
+          Text(label, style: const TextStyle(color: Colors.white70, fontSize: 12)),
         ],
       ),
+    );
+  }
+
+  Widget _buildStatsRow() {
+    List<Widget> cards = [
+       Expanded(child: _buildStatCard(_label1, _stat1.toString(), Colors.orange)),
+       const SizedBox(width: 16),
+       Expanded(child: _buildStatCard(_label2, _stat2.toString(), Colors.blue)),
+    ];
+
+    // Removed Pending Approval as requested
+
+    return Row(
+      children: cards,
+    );
+  }
+
+  Widget _buildRecentActivity() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text("Aktivitas Terkini", style: TextStyle(fontFamily: 'Tahoma', fontSize: 18, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 12),
+        if (_recentActivity.isEmpty)
+           const Text("Belum ada aktivitas.", style: TextStyle(color: Colors.grey)),
+        
+        ..._recentActivity.map((item) {
+           final pasienName = item['Pasien']?['nama'] ?? 'Unknown';
+           final status = item['status'] ?? '-';
+           return Container(
+             margin: const EdgeInsets.only(bottom: 8),
+             decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+             child: ListTile(
+               leading: const CircleAvatar(backgroundColor: Color(0xFFE0F2F1), child: Icon(Icons.person, color: Color(0xFF00695C))),
+               title: Text(pasienName, style: const TextStyle(fontWeight: FontWeight.bold)),
+               subtitle: Text("Status: $status"),
+               trailing: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: status == 'Selesai' ? Colors.green.withOpacity(0.1) : Colors.orange.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8)
+                  ),
+                  child: Text(status, style: TextStyle(fontSize: 12, color: status == 'Selesai' ? Colors.green : Colors.orange)),
+               ),
+             ),
+           );
+        }).toList()
+      ],
+    );
+  }
+
+  Widget _buildUpcomingSchedule() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text("Jadwal Mendatang", style: TextStyle(fontFamily: 'Tahoma', fontSize: 18, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 12),
+        if (_upcomingSchedule.isEmpty)
+           const Text("Tidak ada jadwal khusus dalam 3 hari ke depan.", style: TextStyle(color: Colors.grey)),
+        
+        ..._upcomingSchedule.map((item) {
+           final date = item['date'] ?? '-';
+           final status = item['status'] ?? '-';
+           return Container(
+             margin: const EdgeInsets.only(bottom: 8),
+             decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+             child: ListTile(
+               leading: const Icon(Icons.calendar_today, color: Colors.blue),
+               title: Text("Tanggal: $date"),
+               subtitle: Text("Status: $status"),
+             ),
+           );
+        }).toList()
+      ],
     );
   }
 

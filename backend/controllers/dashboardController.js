@@ -62,6 +62,8 @@ async function getDashboardStats(req, res) {
                 ]
             });
 
+            const totalUsers = await require('../models').User.count();
+
             stats = {
                 totalPasienToday,
                 totalPasienMonth,
@@ -70,7 +72,8 @@ async function getDashboardStats(req, res) {
                 antrianSelesai,
                 pendingApprovals,
                 dokterAktif,
-                recentAntrian
+                recentAntrian,
+                totalUsers
             };
 
         } else if (role === 'petugas') {

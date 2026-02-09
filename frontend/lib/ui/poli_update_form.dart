@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import '../model/poli.dart';
 import '../service/poli_service.dart';
+import '../widget/custom_text_field.dart';
+import '../widget/primary_button.dart';
+import '../helpers/app_theme.dart';
 
 class PoliUpdateForm extends StatefulWidget {
   final Poli poli;
@@ -15,10 +18,6 @@ class _PoliUpdateFormState extends State<PoliUpdateForm> {
   final _namaPoliCtrl = TextEditingController();
   final _keteranganCtrl = TextEditingController();
   
-  // Palette
-  final Color _primaryTeal = const Color(0xFF00695C);
-  final Color _bgLight = const Color(0xFFF5F7FA);
-
   @override
   void initState() {
     super.initState();
@@ -29,10 +28,10 @@ class _PoliUpdateFormState extends State<PoliUpdateForm> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _bgLight,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text("Ubah Data Poli", style: TextStyle(fontFamily: 'Tahoma')),
-        backgroundColor: _primaryTeal,
+        backgroundColor: AppColors.primary,
         elevation: 0,
         centerTitle: true,
       ),
@@ -43,55 +42,28 @@ class _PoliUpdateFormState extends State<PoliUpdateForm> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _buildField("Nama Poli", _namaPoliCtrl),
+              CustomTextField(
+                label: "Nama Poli",
+                controller: _namaPoliCtrl,
+                icon: Icons.edit_location_alt_outlined,
+              ),
               const SizedBox(height: 16),
-              _buildField("Keterangan", _keteranganCtrl, maxLines: 3),
+              CustomTextField(
+                label: "Keterangan",
+                controller: _keteranganCtrl,
+                maxLines: 3,
+                validator: (value) => null, // Optional
+              ),
               const SizedBox(height: 30),
               
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: _primaryTeal,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  elevation: 4,
-                  shadowColor: _primaryTeal.withOpacity(0.4),
-                ),
+              PrimaryButton(
+                text: "Simpan Perubahan",
                 onPressed: _simpanPerubahan,
-                child: const Text(
-                  "SIMPAN PERUBAHAN", 
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, fontFamily: 'Tahoma')
-                ),
               ),
             ],
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildField(String label, TextEditingController controller, {int maxLines = 1}) {
-    return TextFormField(
-      controller: controller,
-      maxLines: maxLines,
-      cursorColor: _primaryTeal,
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: TextStyle(color: Colors.grey[700]),
-        prefixIcon: maxLines == 1 ? Icon(Icons.edit_location_alt_outlined, color: _primaryTeal) : null,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey[300]!),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: _primaryTeal, width: 2),
-        ),
-        filled: true,
-        fillColor: Colors.white,
-      ),
-      validator: (value) => (value == null || value.isEmpty) && label == "Nama Poli" ? '$label wajib diisi' : null,
     );
   }
 

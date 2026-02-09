@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import '../helpers/api_client.dart';
 import '../helpers/user_info.dart';
+import '../widget/custom_text_field.dart';
+import '../widget/primary_button.dart';
 import 'beranda.dart';
 
 class LoginPage extends StatefulWidget {
@@ -16,7 +18,6 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
   final TextEditingController _emailCtrl = TextEditingController();
   final TextEditingController _passwordCtrl = TextEditingController();
   
-  bool _obscure = true;
   bool _loading = false;
   
   // Controller untuk animasi
@@ -27,7 +28,6 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
   // Palet Warna Premium (Sama seperti Beranda)
   final Color _primaryTeal = const Color(0xFF00695C);
   final Color _darkTeal = const Color(0xFF004D40);
-  final Color _accentGold = const Color(0xFFD4AF37);
 
   @override
   void initState() {
@@ -261,11 +261,11 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                               const SizedBox(height: 30),
 
                               // Input Email
-                              _buildPremiumInput(
+                              CustomTextField(
                                 controller: _emailCtrl,
                                 label: "Email Address",
                                 icon: Icons.email_outlined,
-                                inputType: TextInputType.emailAddress,
+                                keyboardType: TextInputType.emailAddress,
                                 validator: (v) {
                                   if (v == null || v.trim().isEmpty) return 'Email wajib diisi';
                                   if (!v.contains('@')) return 'Format email tidak valid';
@@ -276,12 +276,11 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                               const SizedBox(height: 20),
 
                               // Input Password
-                              _buildPremiumInput(
+                              CustomTextField(
                                 controller: _passwordCtrl,
                                 label: "Password",
                                 icon: Icons.lock_outline,
-                                isObscure: _obscure,
-                                toggleObscure: () => setState(() => _obscure = !_obscure),
+                                obscureText: true,
                                 validator: (v) {
                                   if (v == null || v.isEmpty) return 'Password wajib diisi';
                                   return null;
@@ -291,36 +290,10 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
                               const SizedBox(height: 30),
 
                               // Tombol Login
-                              SizedBox(
-                                width: double.infinity,
-                                height: 55,
-                                child: ElevatedButton(
-                                  onPressed: _loading ? null : _tryLogin,
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: _primaryTeal,
-                                    foregroundColor: Colors.white,
-                                    elevation: 5,
-                                    shadowColor: _primaryTeal.withOpacity(0.5),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(16),
-                                    ),
-                                  ),
-                                  child: _loading
-                                      ? const SizedBox(
-                                          width: 24,
-                                          height: 24,
-                                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3),
-                                        )
-                                      : const Text(
-                                          "MASUK SEKARANG",
-                                          style: TextStyle(
-                                            fontFamily: 'Tahoma',
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 16,
-                                            letterSpacing: 1,
-                                          ),
-                                        ),
-                                ),
+                              PrimaryButton(
+                                text: "Masuk Sekarang",
+                                isLoading: _loading,
+                                onPressed: _tryLogin,
                               ),
                             ],
                           ),
@@ -340,58 +313,6 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
           ),
         ],
       ),
-    );
-  }
-
-  // Widget Input Kustom yang Cantik
-  Widget _buildPremiumInput({
-    required TextEditingController controller,
-    required String label,
-    required IconData icon,
-    TextInputType inputType = TextInputType.text,
-    bool isObscure = false,
-    VoidCallback? toggleObscure,
-    String? Function(String?)? validator,
-  }) {
-    return TextFormField(
-      controller: controller,
-      obscureText: isObscure,
-      keyboardType: inputType,
-      style: const TextStyle(fontFamily: 'Tahoma'),
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: TextStyle(color: Colors.grey[600]),
-        prefixIcon: Icon(icon, color: _primaryTeal),
-        suffixIcon: toggleObscure != null
-            ? IconButton(
-                icon: Icon(
-                  isObscure ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                  color: Colors.grey,
-                ),
-                onPressed: toggleObscure,
-              )
-            : null,
-        filled: true,
-        fillColor: Colors.grey[50],
-        contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey.shade200),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: _primaryTeal, width: 2), // Highlight Teal saat aktif
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.red.shade200),
-        ),
-      ),
-      validator: validator,
     );
   }
 }

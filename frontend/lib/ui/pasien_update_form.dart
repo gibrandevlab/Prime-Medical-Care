@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import '../model/pasien.dart';
 import '../service/pasien_service.dart';
+import '../widget/custom_text_field.dart';
+import '../widget/primary_button.dart';
+import '../helpers/app_theme.dart';
 
 class PasienUpdateForm extends StatefulWidget {
   final Pasien pasien;
@@ -22,9 +25,6 @@ class _PasienUpdateFormState extends State<PasienUpdateForm> {
   final _tglLahirCtrl = TextEditingController();
   final _telpCtrl = TextEditingController();
 
-  final Color _primaryTeal = const Color(0xFF00695C);
-  final Color _bgLight = const Color(0xFFF5F7FA);
-
   @override
   void initState() {
     super.initState();
@@ -35,16 +35,16 @@ class _PasienUpdateFormState extends State<PasienUpdateForm> {
     _emailCtrl.text = widget.pasien.email ?? '';
     _tglLahirCtrl.text = widget.pasien.tanggalLahir;
     _telpCtrl.text = widget.pasien.nomorTelepon;
-    _passwordCtrl.text = widget.pasien.password ?? ''; // Fix: Handle null password
+    _passwordCtrl.text = widget.pasien.password ?? '';
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _bgLight,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text("Ubah Data Pasien", style: TextStyle(fontFamily: 'Tahoma')),
-        backgroundColor: _primaryTeal,
+        backgroundColor: AppColors.primary,
         elevation: 0,
         centerTitle: true,
       ),
@@ -55,85 +55,77 @@ class _PasienUpdateFormState extends State<PasienUpdateForm> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _buildField("Nomor RM", _rmCtrl, icon: Icons.credit_card, readOnly: true),
+              CustomTextField(
+                label: "Nomor RM",
+                controller: _rmCtrl,
+                icon: Icons.credit_card,
+                readOnly: true,
+              ),
               const SizedBox(height: 16),
-              _buildField("NIK (16 digit)", _nikCtrl, icon: Icons.badge_outlined, keyboardType: TextInputType.number, maxLength: 16),
+              CustomTextField(
+                label: "NIK (16 digit)",
+                controller: _nikCtrl,
+                icon: Icons.badge_outlined,
+                keyboardType: TextInputType.number,
+                validator: (value) {
+                  if (value == null || value.isEmpty) return 'NIK wajib diisi';
+                  if (value.length != 16) return 'NIK harus 16 digit';
+                  return null;
+                },
+              ),
               const SizedBox(height: 16),
-              _buildField("Nama Lengkap", _namaCtrl, icon: Icons.person_outline),
+              CustomTextField(
+                label: "Nama Lengkap",
+                controller: _namaCtrl,
+                icon: Icons.person_outline,
+              ),
               const SizedBox(height: 16),
-              _buildField("Tanggal Lahir", _tglLahirCtrl, icon: Icons.calendar_today_outlined, readOnly: true, onTap: _pickTanggal),
+              CustomTextField(
+                label: "Tanggal Lahir",
+                controller: _tglLahirCtrl,
+                icon: Icons.calendar_today_outlined,
+                readOnly: true,
+                onTap: _pickTanggal,
+              ),
               const SizedBox(height: 16),
-              _buildField("Nomor Telepon", _telpCtrl, icon: Icons.phone_android, keyboardType: TextInputType.phone),
+              CustomTextField(
+                label: "Nomor Telepon",
+                controller: _telpCtrl,
+                icon: Icons.phone_android,
+                keyboardType: TextInputType.phone,
+              ),
               const SizedBox(height: 16),
-              _buildField("Alamat", _alamatCtrl, icon: Icons.home_outlined, maxLines: 2),
+              CustomTextField(
+                label: "Alamat",
+                controller: _alamatCtrl,
+                icon: Icons.home_outlined,
+                maxLines: 2,
+              ),
               const SizedBox(height: 16),
-              _buildField("Email", _emailCtrl, icon: Icons.email_outlined, keyboardType: TextInputType.emailAddress),
+              CustomTextField(
+                label: "Email",
+                controller: _emailCtrl,
+                icon: Icons.email_outlined,
+                keyboardType: TextInputType.emailAddress,
+              ),
               const SizedBox(height: 16),
-              _buildField("Password", _passwordCtrl, icon: Icons.lock_outline, obscureText: true),
+              CustomTextField(
+                label: "Password",
+                controller: _passwordCtrl,
+                icon: Icons.lock_outline,
+                obscureText: true,
+                validator: (value) => null, // Optional on update
+              ),
               
               const SizedBox(height: 30),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: _primaryTeal,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  elevation: 4,
-                  shadowColor: _primaryTeal.withOpacity(0.4),
-                ),
+              PrimaryButton(
+                text: "Simpan Perubahan",
                 onPressed: _simpanPerubahan,
-                child: const Text(
-                  "SIMPAN PERUBAHAN", 
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, fontFamily: 'Tahoma')
-                ),
               ),
             ],
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildField(String label, TextEditingController controller, {
-    IconData? icon, 
-    bool obscureText = false,
-    TextInputType keyboardType = TextInputType.text,
-    bool readOnly = false,
-    VoidCallback? onTap,
-    int maxLines = 1,
-    int? maxLength,
-  }) {
-    return TextFormField(
-      controller: controller,
-      obscureText: obscureText,
-      keyboardType: keyboardType,
-      readOnly: readOnly,
-      onTap: onTap,
-      maxLines: maxLines,
-      maxLength: maxLength,
-      cursorColor: _primaryTeal,
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: TextStyle(color: Colors.grey[700]),
-        prefixIcon: icon != null ? Icon(icon, color: _primaryTeal) : null,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey[300]!),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: _primaryTeal, width: 2),
-        ),
-        filled: true,
-        fillColor: readOnly ? Colors.grey[100] : Colors.white,
-        counterText: '',
-      ),
-      validator: (value) {
-        if (value == null || value.isEmpty) return '$label wajib diisi';
-        if (label.contains('NIK') && value.length != 16) return 'NIK harus 16 digit';
-        return null;
-      },
     );
   }
 
@@ -145,7 +137,7 @@ class _PasienUpdateFormState extends State<PasienUpdateForm> {
       lastDate: DateTime.now(),
       builder: (context, child) {
         return Theme(
-          data: Theme.of(context).copyWith(colorScheme: ColorScheme.light(primary: _primaryTeal)),
+          data: Theme.of(context).copyWith(colorScheme: const ColorScheme.light(primary: AppColors.primary)),
           child: child!,
         );
       },

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import '../service/medical_record_service.dart';
+import '../widget/custom_text_field.dart';
+import '../widget/primary_button.dart';
+import '../helpers/app_theme.dart';
 
 class MedicalRecordForm extends StatefulWidget {
   final int pasienId;
@@ -73,44 +76,48 @@ class _MedicalRecordFormState extends State<MedicalRecordForm> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Buat Rekam Medis')),
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        title: const Text('Buat Rekam Medis', style: TextStyle(fontFamily: 'Tahoma')),
+        backgroundColor: AppColors.primary,
+        elevation: 0,
+        centerTitle: true,
+      ),
       body: Padding(
-        padding: const EdgeInsets.all(12.0),
+        padding: const EdgeInsets.all(24.0),
         child: Form(
           key: _formKey,
           child: ListView(
             children: [
-              TextFormField(
+              CustomTextField(
+                label: "Anamnesa",
                 controller: _anamnesaCtl,
                 maxLines: 4,
-                decoration: const InputDecoration(labelText: 'Anamnesa'),
-                validator: (v) =>
-                    (v == null || v.trim().isEmpty) ? 'Isi anamnesa' : null,
+                validator: (v) => (v == null || v.trim().isEmpty) ? 'Isi anamnesa' : null,
               ),
               const SizedBox(height: 12),
-              TextFormField(
+              CustomTextField(
+                label: "Diagnosa",
                 controller: _diagnosaCtl,
                 maxLines: 3,
-                decoration: const InputDecoration(labelText: 'Diagnosa'),
               ),
               const SizedBox(height: 12),
-              TextFormField(
+              CustomTextField(
+                label: "Tindakan",
                 controller: _tindakanCtl,
                 maxLines: 3,
-                decoration: const InputDecoration(labelText: 'Tindakan'),
               ),
               const SizedBox(height: 12),
-              TextFormField(
+              CustomTextField(
+                label: "Resep",
                 controller: _resepCtl,
                 maxLines: 3,
-                decoration: const InputDecoration(labelText: 'Resep'),
               ),
-              const SizedBox(height: 18),
-              ElevatedButton(
-                onPressed: _saving ? null : _submit,
-                child: _saving
-                    ? const CircularProgressIndicator()
-                    : const Text('Simpan'),
+              const SizedBox(height: 24),
+              PrimaryButton(
+                text: "Simpan",
+                onPressed: _submit,
+                isLoading: _saving,
               ),
             ],
           ),

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../service/schedule_service.dart';
 import '../helpers/user_info.dart';
+import '../widget/primary_button.dart';
+import '../helpers/app_theme.dart';
 
 class ApprovalPage extends StatefulWidget {
   const ApprovalPage({super.key});
@@ -12,9 +14,6 @@ class _ApprovalPageState extends State<ApprovalPage> {
   final _scheduleSvc = ScheduleService();
   List<dynamic> _requests = [];
   bool _loading = true;
-
-  final Color _primaryTeal = const Color(0xFF00695C);
-  final Color _bgLight = const Color(0xFFF5F7FA);
 
   @override
   void initState() {
@@ -36,15 +35,15 @@ class _ApprovalPageState extends State<ApprovalPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _bgLight,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Text("Approval Jadwal (${_requests.length})", style: const TextStyle(fontFamily: 'Tahoma')),
-        backgroundColor: _primaryTeal,
+        backgroundColor: AppColors.primary,
         centerTitle: true,
         elevation: 0,
       ),
       body: _loading
-          ? Center(child: CircularProgressIndicator(color: _primaryTeal))
+          ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
           : _requests.isEmpty
               ? const Center(child: Text("Tidak ada permintaan pending.", style: TextStyle(color: Colors.grey)))
               : ListView.builder(
@@ -81,7 +80,7 @@ class _ApprovalPageState extends State<ApprovalPage> {
                                       foregroundColor: Colors.red,
                                       side: const BorderSide(color: Colors.red),
                                       padding: const EdgeInsets.symmetric(vertical: 12),
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)), // Consistent radius
                                     ),
                                     onPressed: () => _handleApproval(req['id'], false),
                                     icon: const Icon(Icons.close),
@@ -90,16 +89,14 @@ class _ApprovalPageState extends State<ApprovalPage> {
                                 ),
                                 const SizedBox(width: 16),
                                 Expanded(
-                                  child: ElevatedButton.icon(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: _primaryTeal,
-                                      foregroundColor: Colors.white,
-                                      padding: const EdgeInsets.symmetric(vertical: 12),
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                    ),
+                                  // Use PrimaryButton manually or wrapped. 
+                                  // Since PrimaryButton is full width by default, we can use it here but it expands. 
+                                  // PrimaryButton has onPressed, text, icon.
+                                  child: PrimaryButton(
+                                    text: "Setujui",
+                                    icon: Icons.check,
                                     onPressed: () => _handleApproval(req['id'], true),
-                                    icon: const Icon(Icons.check),
-                                    label: const Text("Setujui"),
+                                    // PrimaryButton is standard height/style.
                                   ),
                                 ),
                               ],
@@ -130,7 +127,6 @@ class _ApprovalPageState extends State<ApprovalPage> {
     final adminId = await UserInfo.getUserID();
     if (adminId == null) return;
     
-    // Perhatikan: Sesuaikan parameter ID admin jika service membutuhkan int/string
     final success = await _scheduleSvc.approveOverride(requestId, approved, int.parse(adminId.toString()));
     
     if (success && mounted) {

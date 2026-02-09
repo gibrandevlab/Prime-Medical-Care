@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import '../widget/custom_text_field.dart';
+import '../widget/primary_button.dart';
+import '../widget/card_container.dart';
+import '../helpers/app_theme.dart';
 
 class RatingPage extends StatefulWidget {
   const RatingPage({super.key});
@@ -10,8 +14,6 @@ class _RatingPageState extends State<RatingPage> {
   int _selectedRating = 0;
   final TextEditingController _commentCtrl = TextEditingController();
   
-  final Color _primaryTeal = const Color(0xFF00695C);
-  final Color _bgLight = const Color(0xFFF5F7FA);
   final Color _goldAccent = const Color(0xFFD4AF37);
 
   void _submitRating() {
@@ -40,7 +42,7 @@ class _RatingPageState extends State<RatingPage> {
                 Navigator.pop(context); // Close Dialog
                 Navigator.pop(context); // Back to Home
               },
-              child: Text("Tutup", style: TextStyle(color: _primaryTeal)),
+              child: const Text("Tutup", style: TextStyle(color: AppColors.primary)),
             )
           ],
         );
@@ -51,24 +53,16 @@ class _RatingPageState extends State<RatingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _bgLight,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text("Beri Penilaian", style: TextStyle(fontFamily: 'Tahoma')),
-        backgroundColor: _primaryTeal,
+        backgroundColor: AppColors.primary,
         centerTitle: true,
         elevation: 0,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
-        child: Container(
-          padding: const EdgeInsets.all(32),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
-            boxShadow: [
-              BoxShadow(color: Colors.grey.withOpacity(0.1), blurRadius: 20, offset: const Offset(0, 10)),
-            ],
-          ),
+        child: CardContainer(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -91,36 +85,20 @@ class _RatingPageState extends State<RatingPage> {
                 }),
               ),
               const SizedBox(height: 24),
-              TextField(
+              
+              CustomTextField(
+                label: "Komentar (Opsional)",
+                hintText: "Tulis saran atau komentar Anda...",
                 controller: _commentCtrl,
                 maxLines: 4,
-                decoration: InputDecoration(
-                  hintText: "Tulis saran atau komentar Anda...",
-                  hintStyle: TextStyle(color: Colors.grey[400]),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    borderSide: BorderSide(color: _primaryTeal, width: 2),
-                  ),
-                  filled: true,
-                  fillColor: _bgLight,
-                ),
+                icon: Icons.comment_outlined,
               ),
+
               const SizedBox(height: 32),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _submitRating,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: _primaryTeal,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    elevation: 4,
-                    shadowColor: _primaryTeal.withOpacity(0.4),
-                  ),
-                  child: const Text("KIRIM PENILAIAN", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, fontFamily: 'Tahoma', color: Colors.white)),
-                ),
-              )
+              PrimaryButton(
+                text: "KIRIM PENILAIAN",
+                onPressed: _submitRating,
+              ),
             ],
           ),
         ),

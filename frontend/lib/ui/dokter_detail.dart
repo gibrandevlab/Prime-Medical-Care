@@ -5,6 +5,10 @@ import 'dokter_antrian_page.dart';
 import 'doctor_schedule_page.dart';
 import '../service/dokter_service.dart';
 import '../helpers/user_info.dart';
+import '../helpers/app_theme.dart';
+import '../widget/detail_row.dart';
+import '../widget/card_container.dart';
+import '../widget/section_header.dart';
 
 class DokterDetail extends StatefulWidget {
   final Dokter dokter;
@@ -17,8 +21,6 @@ class DokterDetail extends StatefulWidget {
 }
 
 class _DokterDetailState extends State<DokterDetail> {
-  final Color _primaryTeal = const Color(0xFF00695C);
-  final Color _bgLight = const Color(0xFFF5F7FA);
   final Color _goldAccent = const Color(0xFFD4AF37);
   final Color _redDanger = const Color(0xFFE57373);
   final Color _indigoLink = const Color(0xFF3949AB);
@@ -42,10 +44,10 @@ class _DokterDetailState extends State<DokterDetail> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _bgLight,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text("Profil Dokter", style: TextStyle(fontFamily: 'Tahoma')),
-        backgroundColor: _primaryTeal,
+        backgroundColor: AppColors.primary,
         elevation: 0,
         centerTitle: true,
       ),
@@ -54,22 +56,14 @@ class _DokterDetailState extends State<DokterDetail> {
         child: Column(
           children: [
             // Card Profil
-            Container(
-              width: double.infinity,
+            CardContainer(
               padding: const EdgeInsets.all(32),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(color: Colors.grey.withOpacity(0.1), blurRadius: 20, offset: const Offset(0, 10)),
-                ],
-              ),
               child: Column(
                 children: [
                   CircleAvatar(
                     radius: 45,
-                    backgroundColor: _primaryTeal.withOpacity(0.1),
-                    child: Icon(Icons.medical_services_rounded, size: 45, color: _primaryTeal),
+                    backgroundColor: AppColors.primary.withOpacity(0.1),
+                    child: const Icon(Icons.medical_services_rounded, size: 45, color: AppColors.primary),
                   ),
                   const SizedBox(height: 24),
                   Text(
@@ -82,10 +76,10 @@ class _DokterDetailState extends State<DokterDetail> {
                   const SizedBox(height: 8),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(color: _primaryTeal.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
+                    decoration: BoxDecoration(color: AppColors.primary.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
                     child: Text(
                       widget.dokter.namaPoli ?? "Poli Umum",
-                      style: TextStyle(color: _primaryTeal, fontWeight: FontWeight.bold),
+                      style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ],
@@ -94,19 +88,12 @@ class _DokterDetailState extends State<DokterDetail> {
             const SizedBox(height: 24),
 
             // Card Dashboard Operasional (Jadwal & Antrian)
-            Container(
-              width: double.infinity,
+            CardContainer(
               padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.05), blurRadius: 10)],
-              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text("Operasional", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                  const SizedBox(height: 16),
+                  const SectionHeader(title: "Operasional"),
                   Row(
                     children: [
                       Expanded(child: _buildActionButton("Jadwal Praktik", Icons.calendar_month, () {
@@ -125,21 +112,15 @@ class _DokterDetailState extends State<DokterDetail> {
             const SizedBox(height: 24),
 
             // Card Detail Data
-            Container(
-              width: double.infinity,
+            CardContainer(
               padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.05), blurRadius: 10)],
-              ),
               child: Column(
                 children: [
-                  _itemDetail(Icons.badge, "NIP", widget.dokter.nip),
+                  DetailRow(icon: Icons.badge, label: "NIP", value: widget.dokter.nip),
                   const Divider(height: 24),
-                  _itemDetail(Icons.phone_android, "Telepon", widget.dokter.nomorTelepon),
+                  DetailRow(icon: Icons.phone_android, label: "Telepon", value: widget.dokter.nomorTelepon),
                   const Divider(height: 24),
-                  _itemDetail(Icons.email, "Email", widget.dokter.email ?? '-'),
+                  DetailRow(icon: Icons.email, label: "Email", value: widget.dokter.email ?? '-', isLast: true),
                 ],
               ),
             ),
@@ -204,18 +185,6 @@ class _DokterDetailState extends State<DokterDetail> {
           Text(title, style: TextStyle(color: _indigoLink, fontWeight: FontWeight.bold, fontSize: 12), textAlign: TextAlign.center),
         ],
       ),
-    );
-  }
-
-  Widget _itemDetail(IconData icon, String label, String value) {
-    return Row(
-      children: [
-        Icon(icon, color: _primaryTeal, size: 20),
-        const SizedBox(width: 16),
-        Text(label, style: TextStyle(color: Colors.grey[600])),
-        const Spacer(),
-        Text(value, style: const TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF2C3E50))),
-      ],
     );
   }
 

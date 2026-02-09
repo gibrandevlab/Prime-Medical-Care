@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../model/pasien.dart';
 import '../service/pasien_service.dart';
+import '../widget/custom_text_field.dart';
+import '../widget/primary_button.dart';
 
 class PasienForm extends StatefulWidget {
   const PasienForm({super.key});
@@ -63,96 +65,70 @@ class _PasienFormState extends State<PasienForm> {
               ),
               const SizedBox(height: 16),
               
-              _buildField("NIK (16 digit)", _nikCtrl, 
-                icon: Icons.badge_outlined, 
+              CustomTextField(
+                label: "NIK (16 digit)",
+                controller: _nikCtrl,
+                icon: Icons.badge_outlined,
                 keyboardType: TextInputType.number,
                 maxLength: 16,
+                validator: (value) {
+                  if (value == null || value.isEmpty) return 'NIK wajib diisi';
+                  if (value.length != 16) return 'NIK harus 16 digit';
+                  return null;
+                },
               ),
               const SizedBox(height: 16),
-              _buildField("Nama Lengkap", _namaCtrl, icon: Icons.person_outline),
-              const SizedBox(height: 16),
-              _buildField("Tanggal Lahir (YYYY-MM-DD)", _tglLahirCtrl, 
-                icon: Icons.calendar_today_outlined, 
-                readOnly: true, 
-                onTap: _pickTanggal
+              CustomTextField(
+                label: "Nama Lengkap",
+                controller: _namaCtrl,
+                icon: Icons.person_outline,
               ),
               const SizedBox(height: 16),
-              _buildField("Nomor Telepon", _telpCtrl, icon: Icons.phone_android, keyboardType: TextInputType.phone),
+              CustomTextField(
+                label: "Tanggal Lahir (YYYY-MM-DD)",
+                controller: _tglLahirCtrl,
+                icon: Icons.calendar_today_outlined,
+                readOnly: true,
+                onTap: _pickTanggal,
+              ),
               const SizedBox(height: 16),
-              _buildField("Alamat", _alamatCtrl, icon: Icons.home_outlined, maxLines: 2),
+              CustomTextField(
+                label: "Nomor Telepon",
+                controller: _telpCtrl,
+                icon: Icons.phone_android,
+                keyboardType: TextInputType.phone,
+              ),
               const SizedBox(height: 16),
-              _buildField("Email", _emailCtrl, icon: Icons.email_outlined, keyboardType: TextInputType.emailAddress),
+              CustomTextField(
+                label: "Alamat",
+                controller: _alamatCtrl,
+                icon: Icons.home_outlined,
+                maxLines: 2,
+              ),
               const SizedBox(height: 16),
-              _buildField("Password", _passwordCtrl, icon: Icons.lock_outline, obscureText: true),
+              CustomTextField(
+                label: "Email",
+                controller: _emailCtrl,
+                icon: Icons.email_outlined,
+                keyboardType: TextInputType.emailAddress,
+              ),
+              const SizedBox(height: 16),
+              CustomTextField(
+                label: "Password",
+                controller: _passwordCtrl,
+                icon: Icons.lock_outline,
+                obscureText: true,
+              ),
               
               const SizedBox(height: 30),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: _primaryTeal,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  elevation: 4,
-                  shadowColor: _primaryTeal.withOpacity(0.4),
-                ),
+              PrimaryButton(
+                text: "Simpan Data",
                 onPressed: _simpan,
-                child: const Text(
-                  "SIMPAN DATA", 
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, fontFamily: 'Tahoma')
-                ),
               ),
             ],
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildField(String label, TextEditingController controller, {
-    IconData? icon, 
-    bool obscureText = false,
-    TextInputType keyboardType = TextInputType.text,
-    bool readOnly = false,
-    VoidCallback? onTap,
-    int maxLines = 1,
-    int? maxLength,
-  }) {
-    return TextFormField(
-      controller: controller,
-      obscureText: obscureText,
-      keyboardType: keyboardType,
-      readOnly: readOnly,
-      onTap: onTap,
-      maxLines: maxLines,
-      maxLength: maxLength,
-      cursorColor: _primaryTeal,
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: TextStyle(color: Colors.grey[700]),
-        prefixIcon: icon != null ? Icon(icon, color: _primaryTeal) : null,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey[300]!),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: _primaryTeal, width: 2),
-        ),
-        filled: true,
-        fillColor: Colors.white,
-        counterText: '', // Hide character counter
-      ),
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return '$label wajib diisi';
-        }
-        // NIK validation
-        if (label.contains('NIK') && value.length != 16) {
-          return 'NIK harus 16 digit';
-        }
-        return null;
-      },
     );
   }
 

@@ -3,6 +3,9 @@ import '../model/pegawai.dart';
 import 'pegawai_update_form.dart';
 import '../service/pegawai_service.dart';
 import '../helpers/user_info.dart';
+import '../helpers/app_theme.dart';
+import '../widget/card_container.dart';
+import '../widget/detail_row.dart';
 
 class PegawaiDetail extends StatefulWidget {
   final Pegawai pegawai;
@@ -16,8 +19,6 @@ class PegawaiDetail extends StatefulWidget {
 
 class _PegawaiDetailState extends State<PegawaiDetail> {
   // Palette
-  final Color _primaryTeal = const Color(0xFF00695C);
-  final Color _bgLight = const Color(0xFFF5F7FA);
   final Color _goldAccent = const Color(0xFFD4AF37);
   final Color _redDanger = const Color(0xFFE57373);
   bool _canEdit = false;
@@ -34,13 +35,13 @@ class _PegawaiDetailState extends State<PegawaiDetail> {
   }
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _bgLight,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text(
           "Profil Pegawai",
           style: TextStyle(fontFamily: 'Tahoma'),
         ),
-        backgroundColor: _primaryTeal,
+        backgroundColor: AppColors.primary,
         elevation: 0,
         centerTitle: true,
       ),
@@ -49,29 +50,16 @@ class _PegawaiDetailState extends State<PegawaiDetail> {
         child: Column(
           children: [
             // Card Utama
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(32),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.1),
-                    blurRadius: 20,
-                    offset: const Offset(0, 10),
-                  ),
-                ],
-              ),
+            CardContainer(
               child: Column(
                 children: [
                   CircleAvatar(
                     radius: 45,
-                    backgroundColor: _primaryTeal.withOpacity(0.1),
-                    child: Icon(
+                    backgroundColor: AppColors.primary.withOpacity(0.1),
+                    child: const Icon(
                       Icons.person_rounded,
                       size: 45,
-                      color: _primaryTeal,
+                      color: AppColors.primary,
                     ),
                   ),
                   const SizedBox(height: 24),
@@ -96,26 +84,14 @@ class _PegawaiDetailState extends State<PegawaiDetail> {
             const SizedBox(height: 24),
 
             // Card Detail Info
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.05),
-                    blurRadius: 10,
-                  ),
-                ],
-              ),
+            CardContainer(
               child: Column(
                 children: [
-                  _itemDetail(Icons.calendar_today_rounded, "Tanggal Lahir", widget.pegawai.tanggalLahir),
+                  DetailRow(icon: Icons.calendar_today_rounded, label: "Tanggal Lahir", value: widget.pegawai.tanggalLahir),
                   const Divider(height: 24),
-                  _itemDetail(Icons.phone_rounded, "Telepon", widget.pegawai.nomorTelepon),
+                  DetailRow(icon: Icons.phone_rounded, label: "Telepon", value: widget.pegawai.nomorTelepon),
                   const Divider(height: 24),
-                  _itemDetail(Icons.email_rounded, "Email", widget.pegawai.email),
+                  DetailRow(icon: Icons.email_rounded, label: "Email", value: widget.pegawai.email ?? '-'),
                 ],
               ),
             ),
@@ -179,21 +155,6 @@ class _PegawaiDetailState extends State<PegawaiDetail> {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _itemDetail(IconData icon, String label, String value) {
-    return Row(
-      children: [
-        Icon(icon, color: _primaryTeal, size: 20),
-        const SizedBox(width: 16),
-        Text(label, style: TextStyle(color: Colors.grey[600])),
-        const Spacer(),
-        Text(
-          value,
-          style: const TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF2C3E50)),
-        ),
-      ],
     );
   }
 
